@@ -1,0 +1,16 @@
+{
+  "name": "online-multiplayer-game",
+  "version": "1.0.0",
+  "description": "A test",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Martijn Schippers",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "randomcolor": "^0.6.2",
+    "socket.io": "^4.7.4"
+  }
+}
