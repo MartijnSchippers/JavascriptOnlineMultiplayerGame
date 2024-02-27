@@ -1,20 +1,18 @@
-<!-- client/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Socket.IO Chat</title>
-  <script src="/socket.io/socket.io.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Shooting Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="scripts/player.js"></script>
+    <script src="scripts/bullet.js"></script>
+    <script src="scripts/map.js"></script>
 </head>
 <body>
-  <canvas width="400" height="400"></canvas>
-  <ul id="messages"></ul>
-  <form id="form" action="">
-    <input id="m" autocomplete="off" /><button>Send</button>
-  </form>
 
-  <script src="scripts/script.js"></script>
+<canvas id="gameCanvas" width="800" height="400"></canvas>
+<script src="scripts/game.js"></script>
 
 </body>
 </html>
