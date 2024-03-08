@@ -2,19 +2,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Socket.IO Chat</title>
-  <script src="/socket.io/socket.io.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Shooting Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+            background-color: white;
+        }
+    </style>
+    <script src="scripts/player.js"></script>
+    <script src="scripts/map.js"></script>
+    <script src="scripts/bullet.js"></script>
 </head>
 <body>
-  <canvas width="400" height="400"></canvas>
-  <ul id="messages"></ul>
-  <form id="form" action="">
-    <input id="m" autocomplete="off" /><button>Send</button>
-  </form>
 
-  <script src="scripts/script.js"></script>
+<canvas id="gameCanvas" width="800" height="400"></canvas>
+<script src="scripts/client.js"></script>
 
 </body>
 </html>
