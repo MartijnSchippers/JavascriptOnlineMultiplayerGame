@@ -40,9 +40,18 @@ class Map {
 
     // x and y are pixel points
     isLegitMove(x, y, ctx, radius = 1) {
+        // check if out of map
+        // console.log(x-radius, y-radius);
+        if ( (x - radius) < 0 || (x + radius) > this.width || (y - radius) < 0 || (y + radius) > this.height) {
+            
+            return false;
+        }
+        
         // tranform pixel points to coordinates\
         x = x / this.tileSize;
         y = y / this.tileSize;
+
+        
         
         // check if coords are in range of the map walls
         let xMin = Math.floor(x - (radius / this.tileSize));

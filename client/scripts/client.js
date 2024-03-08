@@ -77,13 +77,17 @@ function update() {
         player.move(nextPlayerPos.x, nextPlayerPos.y);
     }
 
-    // // update the bullets
-    // bullets.forEach(bullet => {
-    //     bullet.x += bulletSpeed;
-    // });
+    // move the bullets
+    bullets.forEach((bullet, index) => {
+        if (map.isLegitMove(bullet.x, bullet.y, ctx, bullet.radius)) {
+            bullet.move();
+        } else {
+            bullets.splice(index, 1);
+        }
+    });
 
     // bullets.forEach((bullet, index) => {
-    //     if (bullet.x > canvas.width) {
+    //     if (bullet.isOutOfBounds(canvas)) {
     //         bullets.splice(index, 1);
     //     }
     // });
@@ -91,8 +95,9 @@ function update() {
 
 function draw() {
     // ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawPlayer();
     drawMap();
+    drawPlayer();    
+    drawBullets();
     // drawBullets();
 }
 
@@ -118,6 +123,14 @@ window.addEventListener('keydown', (e) => {
 
 window.addEventListener('keyup', (e) => {
     keys[e.key] = false;
+});
+
+canvas.addEventListener('click', (e) => {
+    const angle = Math.atan2(e.clientY - canvas.offsetTop - player.y, e.clientX - canvas.offsetLeft - player.x);
+    const speedX = bulletSpeed * Math.cos(angle);
+    const speedY = bulletSpeed * Math.sin(angle);
+
+    bullets.push(new Bullet(player.x + player.radius * Math.cos(angle), player.y + player.radius * Math.sin(angle), speedX, speedY));
 });
 
 gameLoop();
