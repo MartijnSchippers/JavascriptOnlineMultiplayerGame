@@ -3,8 +3,10 @@ class Map {
 
     constructor(tileSize, width, height) {
         this.tileSize = tileSize;
-        this.width = width;             // total width
-        this.height = height;           // total height
+        this.width = width             // tile width
+        this.height = height          // tile height
+        this.pixelWidth = width * tileSize;             // total width
+        this.pixelHeight = height * tileSize;           // total height
         this.obstacles = [];
         this.wall = new Image();
         this.wall.src = 'scripts/sprites/wall.png';
@@ -42,8 +44,7 @@ class Map {
     isLegitMove(x, y, ctx, radius = 1) {
         // check if out of map
         // console.log(x-radius, y-radius);
-        if ( (x - radius) < 0 || (x + radius) > this.width || (y - radius) < 0 || (y + radius) > this.height) {
-            
+        if ( (x - radius) < 0 || (x + radius) > this.pixelWidth || (y - radius) < 0 || (y + radius) > this.pixelHeight) {
             return false;
         }
         

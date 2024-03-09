@@ -1,3 +1,4 @@
+const socket = io();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 // const randomColor = require('randomcolor');
@@ -6,25 +7,7 @@ const ctx = canvas.getContext('2d');
 const player = new Player(canvas.width / 2, canvas.height / 2, 15);
 var map;// = new Map(20, canvas.width, canvas.height);
 
-const socket = io();
-
 let mapInit = false;
-
-// for (let wallsY = 5; wallsY < 18; wallsY++) {
-//     map.addWall(5, wallsY);
-// }
-
-// for (let wallsX = 15; wallsX < 20; wallsX++) {
-//     map.addWall(wallsX, 5);
-// }
-
-// const player = {
-//     x: canvas.width / 2,
-//     y: canvas.height / 2,
-//     size: 15,
-//     speed: 5,
-//     color: "#" + Math.floor(Math.random()*16777215).toString(16)
-// };
 
 const bullets = [];
 const bulletSpeed = 10;
