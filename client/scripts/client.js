@@ -6,6 +6,7 @@ const ctx = canvas.getContext('2d');
 const player = new Player(canvas.width / 2, canvas.height / 2, 15);
 const map = new Map(20, canvas.width, canvas.height);
 
+const socket = io();
 
 // hard coding the map
 var wall_coord = [

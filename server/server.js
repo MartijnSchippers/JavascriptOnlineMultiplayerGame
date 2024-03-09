@@ -4,7 +4,8 @@ const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
 const randomColor = require('randomcolor');
-const Board = require('./board.js')
+// const Board = require('./board.js')
+const Map = require('./map.js');
 
 const app = express();
 const server = http.createServer(app);
@@ -12,30 +13,26 @@ const io = socketIO(server);
 
 app.use(express.static(path.join(__dirname, '../client')));
 
-// create a board
-const board = new Board(30);
 
+
+// Init a map
+const map1 = new Map('map1');
+// console.log("JSON info map1:", map1.getInfoJSON());
+
+
+
+// client-server functions
 io.on('connection', (socket) => {
-  const color = randomColor();
+  // const color = randomColor();
   console.log('A user connected');
-  io.emit('welcome message', 'a new user joined');
-  socket.emit('board', board.getBoard());
-
-  // Listen for chat messages from clients
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg); // Broadcast the message to all connected clients
-  });
-
+  
   // Handle disconnection
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
 
-  // Receive a canvas draw, and emit to everyone
-  socket.on('fillCanvas', (data) => {
-    board.makeTurn(data.x, data.y, color);
-    io.emit('fillCanvas', {data, color});
-  });
+  // send the map to the user
+  socket.emit('map', map1);
 });
 
 const PORT = process.env.PORT || 3000;
