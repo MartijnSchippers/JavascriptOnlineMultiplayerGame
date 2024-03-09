@@ -52,6 +52,7 @@ class Map {
         return {
             width: this.width,
             height: this.height,
+            tileSize: this.tileSize,
             objects: this.obstacles
         }
     }

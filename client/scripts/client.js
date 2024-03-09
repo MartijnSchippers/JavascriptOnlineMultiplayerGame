@@ -4,36 +4,11 @@ const ctx = canvas.getContext('2d');
 
 // const Player = new Player;
 const player = new Player(canvas.width / 2, canvas.height / 2, 15);
-const map = new Map(20, canvas.width, canvas.height);
+var map;// = new Map(20, canvas.width, canvas.height);
 
 const socket = io();
 
-// hard coding the map
-var wall_coord = [
-    // Outer square
-    [5, 5], [5, 6], [5, 7], [5, 8], [5, 9],
-    [6, 5], [7, 5], [8, 5], [9, 5],
-    [9, 6], [9, 7], [9, 8], [9, 9],
-    [6, 9], [7, 9], [8, 9],
-
-    // Inner square
-    [7, 7], [7, 8], [8, 7], [8, 8],
-
-    // Another structure
-    [15, 5], [15, 6], [15, 7],
-    [16, 5], [17, 5], [18, 5],
-    [18, 6], [18, 7],
-
-    // Yet another structure
-    [25, 5], [25, 6], [25, 7], [25, 8],
-    [26, 5], [27, 5], [28, 5],
-    [28, 6], [28, 7], [28, 8]
-];
-
-
-for (var i = 0; i < wall_coord.length; i++) {
-    map.addWall(wall_coord[i][0], wall_coord[i][1]);
-}
+let mapInit = false;
 
 // for (let wallsY = 5; wallsY < 18; wallsY++) {
 //     map.addWall(5, wallsY);
@@ -56,6 +31,7 @@ const bulletSpeed = 10;
 
 
 function drawMap() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     map.drawWalls(ctx);
 }
 
@@ -70,9 +46,21 @@ function drawBullets() {
     }
 }
 
+function initMap(jsonMapData) {
+    let obs = (jsonMapData["obstacles"]);
+    map = new Map(jsonMapData['tileSize'], jsonMapData['width'], jsonMapData['height']);
+    for (var y = 0; y < obs.length; y++) {
+        for (var x = 0; x < obs[y].length; x++) {
+            if (obs[y][x] == 1) {
+                map.addWall(x, y);
+            }
+        }
+    }
+    mapInit = true;
+}
+
 function update() {
     // move the player
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     nextPlayerPos = player.getNextLoc(keys);
     if (map.isLegitMove(nextPlayerPos.x, nextPlayerPos.y, ctx, 15)) {
         player.move(nextPlayerPos.x, nextPlayerPos.y);
@@ -104,8 +92,13 @@ function draw() {
 
 // main loop function
 function gameLoop() {
-    update();
-    draw();
+    // run the game only if its initialized
+    if (mapInit) {
+        update();
+        draw();
+    }
+
+    // become a main loop
     requestAnimationFrame(gameLoop);
 }
 
@@ -139,6 +132,8 @@ gameLoop();
 
 // insert io listeners here
 (() => {
-
+    socket.on('map', (mapData) => {
+        initMap(mapData);
+    });
     // canvas.addEventListener('click', onClick);
 })();
