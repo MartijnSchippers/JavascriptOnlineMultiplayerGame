@@ -4,22 +4,29 @@ const ctx = canvas.getContext('2d');
 // const randomColor = require('randomcolor');
 
 // const Player = new Player;
-const player = new Player(canvas.width / 2, canvas.height / 2, 15);
+var player;
 var map;// = new Map(20, canvas.width, canvas.height);
 
 let mapInit = false;
 
 const bullets = [];
 const bulletSpeed = 10;
+const players = {};
 
+
+function getMyPlayer() {
+    return players[socket.id];
+}
 
 function drawMap() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     map.drawWalls(ctx);
 }
 
-function drawPlayer() {
-    player.draw(ctx);
+function drawPlayers() {
+    for (const key in players) {
+        players[key].draw(ctx);
+    }
 }
 
 function drawBullets() {
@@ -39,7 +46,28 @@ function initMap(jsonMapData) {
             }
         }
     }
-    mapInit = true;
+}
+
+function initPlayers(playersInfo) {
+    for (const key in playersInfo) {
+        const aPlayer = playersInfo[key];
+        let myId = socket.id;
+        console.log('my id ', myId);
+        let newPlayer = new Player(aPlayer.x, aPlayer.y, aPlayer.radius, aPlayer.color);
+        if(key == myId) {
+            player = newPlayer;
+        }
+        players[key] = newPlayer;
+    }
+    console.log('these are the players: ', players);
+    console.log('However, this implementation still has to be fixed');
+}
+
+function initGame(gameState) {
+    console.log('this is the game state: ', gameState);
+    initMap(gameState.map);
+    initPlayers(gameState.players);
+    mapInit= true;
 }
 
 function update() {
@@ -68,7 +96,7 @@ function update() {
 function draw() {
     // ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawMap();
-    drawPlayer();    
+    drawPlayers();    
     drawBullets();
     // drawBullets();
 }
@@ -118,5 +146,9 @@ gameLoop();
     socket.on('map', (mapData) => {
         initMap(mapData);
     });
+
+    socket.on('initGameState', (gameState) => {
+        initGame(gameState);
+    })
     // canvas.addEventListener('click', onClick);
 })();

@@ -39,3 +39,5 @@ class Player {
         this.y = y;
     }
   }
+  
+module.exports = Player;
