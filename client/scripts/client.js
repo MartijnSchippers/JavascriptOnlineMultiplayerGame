@@ -18,6 +18,10 @@ function getMyPlayer() {
     return players[socket.id];
 }
 
+function deletePlayer(playerId) {
+    delete players[playerId];
+}
+
 function drawMap() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     map.drawWalls(ctx);
@@ -59,10 +63,21 @@ function initPlayers(playersInfo) {
         }
         players[key] = newPlayer;
     }
-    console.log('these are the players: ', players);
-    console.log('However, this implementation still has to be fixed');
 }
 
+function updatePlayers(playersInfo) {
+    for (const key in playersInfo) {
+        if (key != socket.id) {
+            const thePlayer = playersInfo[key];
+            // create a new player if there exists none
+            if (players[key] == null) {
+                players[key] = new Player(thePlayer.x, thePlayer.y, thePlayer.radius, thePlayer.color);
+            } else {
+                players[key].move(thePlayer.x, thePlayer.y);
+            }
+        }
+    }
+}
 function initGame(gameState) {
     console.log('this is the game state: ', gameState);
     initMap(gameState.map);
@@ -140,6 +155,11 @@ canvas.addEventListener('click', (e) => {
 
 gameLoop();
 
+setInterval( () => {
+    if (initGame) {
+        socket.emit('playerInfo', {x: player.x, y: player.y});
+    }
+}, 15);
 
 // insert io listeners here
 (() => {
@@ -149,6 +169,13 @@ gameLoop();
 
     socket.on('initGameState', (gameState) => {
         initGame(gameState);
-    })
-    // canvas.addEventListener('click', onClick);
+    });
+
+    socket.on('playersInfo', (playersInfo) => {
+        updatePlayers(playersInfo)
+    });
+
+    socket.on('playerDelete', (playerId) => {
+        deletePlayer(playerId);
+    });
 })();

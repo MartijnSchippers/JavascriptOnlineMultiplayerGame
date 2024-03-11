@@ -34,6 +34,15 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     delete players[socket.id];
     console.log('User disconnected with ID ', socket.id);
+
+    // send a message that the player is disconnected
+    io.emit('playerDelete', socket.id);
+  });
+
+  // update the player based on its info
+  socket.on('playerInfo', (playerInfo) => {
+    players[socket.id].move(playerInfo.x, playerInfo.y);
+    // io.emit('playersInfo', players);
   });
 
   // make the new player
@@ -43,9 +52,14 @@ io.on('connection', (socket) => {
   // send the state of the game when the player joins
   socket.emit('initGameState', {'map': map1, 'players': players});
 
-  // send the map to the user
-  // socket.emit('map', map1);
+  // send the new user to all clients
+  io.emit('playersInfo', players);
 });
+
+// emit player info
+setInterval(() => {
+  io.emit('playersInfo', players);
+}, 15);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
