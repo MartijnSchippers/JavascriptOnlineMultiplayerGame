@@ -1,32 +1,63 @@
+const fs = require('fs');
+
 class Map {
     
 
-    constructor(tileSize, width, height) {
-        this.tileSize = tileSize;
-        this.width = width             // tile width
-        this.height = height          // tile height
-        this.pixelWidth = width * tileSize;             // total width
-        this.pixelHeight = height * tileSize;           // total height
+    constructor(mapTitle) {
+        // MAKE THESE DYNAMIC IN THE FUTURE
+        this.title = mapTitle;
+        this.tileSize = 20;
+        this.width = 800 / 20;             // total width
+        this.height = 400 / 20;           // total height
+        this.pixelWidth = this.width * this.tileSize;
+        this.pixelHeight = this.height * this.tileSize;
         this.obstacles = [];
-        this.wall = new Image();
-        this.wall.src = 'scripts/sprites/wall.png';
-        // this.wall.src = 'https://i.ibb.co/Ybk7y06/character.png';
 
         // Initialize the 2D array with null values
-        for (let i = 0; i < height; i++) {
+        // TODO: change to coord values
+        for (let i = 0; i < this.height; i++) {
             this.obstacles[i] = [];
-            for (let j = 0; j < width; j++) {
+            for (let j = 0; j < this.width; j++) {
                 this.obstacles[i][j] = null;
             }
         }
+
+        // obatain the map
+        try {
+            var mapObjs = this.getMap(mapTitle);            // objects
+            for (let i = 0; i < mapObjs.length; i++) {
+                let x = mapObjs[i][0];
+                let y = mapObjs[i][1];
+                this.obstacles[y][x] = 1;
+            }
+        } catch (err) {
+            console.error('Error:', err);
+        }
+        
     }
 
-    // Method to add a wall at specified coordinates
-    addWall(x, y) {
-        if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
-            this.obstacles[y][x] = 1;
+    // Read the content of the JSON file
+    getMap(mapTitle) {
+        try {
+            const data = fs.readFileSync('maps.json', 'utf8');
+            const jsonData = JSON.parse(data);
+            return jsonData[mapTitle];
+        } catch (err) {
+            console.error('Error reading the file:', err);
+            throw err;
         }
     }
+
+    getInfoJSON() {
+        return {
+            width: this.width,
+            height: this.height,
+            tileSize: this.tileSize,
+            objects: this.obstacles
+        }
+    }
+
+
 
     // Method to check if a position is blocked by a wall
     isBlocked(x, y) {
@@ -41,7 +72,7 @@ class Map {
     }
 
     // x and y are pixel points
-    isLegitMove(x, y, ctx, radius = 1) {
+    isLegitMove(x, y, radius = 1) {
         // check if out of map
         // console.log(x-radius, y-radius);
         if ( (x - radius) < 0 || (x + radius) > this.pixelWidth || (y - radius) < 0 || (y + radius) > this.pixelHeight) {
@@ -83,17 +114,6 @@ class Map {
         return true;
 
     }
-
-    // Method to draw the walls on the canvas
-    drawWalls(ctx) {
-        ctx.fillStyle = 'gray';
-        for (let i = 0; i < this.height; i++) {
-            for (let j = 0; j < this.width; j++) {
-                if (this.obstacles[i][j] === 1) {
-                    ctx.drawImage(this.wall, j * this.tileSize, i * this.tileSize, this.tileSize, this.tileSize)
-                    // ctx.fillRect(j * this.tileSize, i * this.tileSize, this.tileSize, this.tileSize);
-                }
-            }
-        }
-    }
 }
+
+module.exports = Map;

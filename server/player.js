@@ -7,17 +7,6 @@ class Player {
       this.color = color;
       this.speed = 5;
     }
-  
-    draw(ctx) {
-        ctx.fillStyle = this.color;
-        // ctx.fillRect(player.x, player.y, player.size, player.size);
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'black';
-        ctx.font = "12px serif";
-        ctx.fillText(this.name, this.x - this.radius - 15, this.y + this.radius + 15);
-    }
 
     getNextLoc(keys) {
         // diagonal directions
@@ -44,9 +33,17 @@ class Player {
         }
 
         return {x: x, y: y}
-    } 
+    }
+     
     move(x, y) {
         this.x = x;
         this.y = y;
     }
+
+    hasBeenHit(xBullet, yBullet, radius) {
+        let distance = Math.sqrt((xBullet - this.x) ** 2 + (yBullet - this.y) ** 2);
+        return (distance < this.radius + radius);
+    }
   }
+  
+module.exports = Player;
