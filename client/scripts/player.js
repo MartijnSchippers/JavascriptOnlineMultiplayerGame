@@ -1,8 +1,9 @@
 class Player {
-    constructor(x, y, radius, color = "#" + Math.floor(Math.random()*16777215).toString(16)) {
+    constructor(x, y, radius, name, color = "#" + Math.floor(Math.random()*16777215).toString(16)) {
       this.x = x;
       this.y = y;
       this.radius = radius;
+      this.name = name;
       this.color = color;
       this.speed = 5;
     }
@@ -13,6 +14,9 @@ class Player {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fill();
+        ctx.fillStyle = 'black';
+        ctx.font = "12px serif";
+        ctx.fillText(this.name, this.x - this.radius - 15, this.y + this.radius + 15);
     }
 
     getNextLoc(keys) {

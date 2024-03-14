@@ -9,7 +9,7 @@ var map;// = new Map(20, canvas.width, canvas.height);
 
 let mapInit = false;
 
-const bullets = [];
+var bullets = [];
 const bulletSpeed = 10;
 const players = {};
 
@@ -57,12 +57,23 @@ function initPlayers(playersInfo) {
         const aPlayer = playersInfo[key];
         let myId = socket.id;
         console.log('my id ', myId);
-        let newPlayer = new Player(aPlayer.x, aPlayer.y, aPlayer.radius, aPlayer.color);
+        let newPlayer = new Player(aPlayer.x, aPlayer.y, aPlayer.radius, aPlayer.name, aPlayer.color);
         if(key == myId) {
             player = newPlayer;
         }
         players[key] = newPlayer;
     }
+}
+
+function playerDied(playerId) {
+    // in the future, more logic can be added
+    // check if you just died
+    if (playerId == socket.id) {
+        mapInit = false;
+        drawMap();
+        alert('you died. Please refresh');
+    }
+    delete players[playerId];
 }
 
 function updatePlayers(playersInfo) {
@@ -71,12 +82,28 @@ function updatePlayers(playersInfo) {
             const thePlayer = playersInfo[key];
             // create a new player if there exists none
             if (players[key] == null) {
-                players[key] = new Player(thePlayer.x, thePlayer.y, thePlayer.radius, thePlayer.color);
+                players[key] = new Player(thePlayer.x, thePlayer.y, thePlayer.radius, thePlayer.name, thePlayer.color);
             } else {
                 players[key].move(thePlayer.x, thePlayer.y);
             }
         }
     }
+
+    // delete front-end players that are not relevant
+    for (const key in players) {
+        if (! playersInfo[key]) {
+            delete players[key];
+        }
+    }
+
+}
+
+function updateBullets(bulletsInfo) {
+    bullets = [];
+    bulletsInfo.forEach((bullet, index) => {
+        bullets[index] = new Bullet(bullet.x, bullet.y, bullet.speedX, bullet.speedY);
+    });
+    // bullets = bulletsInfo;
 }
 function initGame(gameState) {
     console.log('this is the game state: ', gameState);
@@ -149,8 +176,11 @@ canvas.addEventListener('click', (e) => {
     const angle = Math.atan2(e.clientY - canvas.offsetTop - player.y, e.clientX - canvas.offsetLeft - player.x);
     const speedX = bulletSpeed * Math.cos(angle);
     const speedY = bulletSpeed * Math.sin(angle);
+    let bullet = new Bullet(player.x + player.radius * Math.cos(angle), player.y + player.radius * Math.sin(angle), speedX, speedY);
+    bullets.push(bullet);
 
-    bullets.push(new Bullet(player.x + player.radius * Math.cos(angle), player.y + player.radius * Math.sin(angle), speedX, speedY));
+    socket.emit('shoot', bullet);
+    console.log('shoot');
 });
 
 gameLoop();
@@ -177,5 +207,13 @@ setInterval( () => {
 
     socket.on('playerDelete', (playerId) => {
         deletePlayer(playerId);
+    });
+
+    socket.on('bullets', (bullets) => {
+        updateBullets(bullets);
+    });
+
+    socket.on('playerDied', (playerId) => {
+        playerDied(playerId);
     });
 })();

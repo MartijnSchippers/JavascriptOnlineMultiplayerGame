@@ -9,6 +9,8 @@ class Map {
         this.tileSize = 20;
         this.width = 800 / 20;             // total width
         this.height = 400 / 20;           // total height
+        this.pixelWidth = this.width * this.tileSize;
+        this.pixelHeight = this.height * this.tileSize;
         this.obstacles = [];
 
         // Initialize the 2D array with null values
@@ -23,8 +25,6 @@ class Map {
         // obatain the map
         try {
             var mapObjs = this.getMap(mapTitle);            // objects
-            console.log(" objects: ", mapObjs);
-            console.log(mapObjs.length);
             for (let i = 0; i < mapObjs.length; i++) {
                 let x = mapObjs[i][0];
                 let y = mapObjs[i][1];
@@ -72,11 +72,10 @@ class Map {
     }
 
     // x and y are pixel points
-    isLegitMove(x, y, ctx, radius = 1) {
+    isLegitMove(x, y, radius = 1) {
         // check if out of map
         // console.log(x-radius, y-radius);
-        if ( (x - radius) < 0 || (x + radius) > this.width || (y - radius) < 0 || (y + radius) > this.height) {
-            
+        if ( (x - radius) < 0 || (x + radius) > this.pixelWidth || (y - radius) < 0 || (y + radius) > this.pixelHeight) {
             return false;
         }
         

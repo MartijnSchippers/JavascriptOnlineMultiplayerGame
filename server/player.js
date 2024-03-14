@@ -1,8 +1,9 @@
 class Player {
-    constructor(x, y, radius, color = "#" + Math.floor(Math.random()*16777215).toString(16)) {
+    constructor(x, y, radius, name, color = "#" + Math.floor(Math.random()*16777215).toString(16)) {
       this.x = x;
       this.y = y;
       this.radius = radius;
+      this.name = name;
       this.color = color;
       this.speed = 5;
     }
@@ -37,6 +38,11 @@ class Player {
     move(x, y) {
         this.x = x;
         this.y = y;
+    }
+
+    hasBeenHit(xBullet, yBullet, radius) {
+        let distance = Math.sqrt((xBullet - this.x) ** 2 + (yBullet - this.y) ** 2);
+        return (distance < this.radius + radius);
     }
   }
   
