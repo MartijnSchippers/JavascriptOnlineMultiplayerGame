@@ -13,6 +13,11 @@ var bullets = [];
 const bulletSpeed = 10;
 const players = {};
 
+function addBullet(bullet) {
+    const newBullet = new Bullet(bullet.id, bullet.x, bullet.y, bullet.speedX, bullet.speedY);
+    bullets.push(newBullet);
+    console.log('a new bullet is added');
+}
 
 function getMyPlayer() {
     return players[socket.id];
@@ -56,7 +61,7 @@ function initPlayers(playersInfo) {
     for (const key in playersInfo) {
         const aPlayer = playersInfo[key];
         let myId = socket.id;
-        console.log('my id ', myId);
+        console.log('player ', aPlayer);
         let newPlayer = new Player(aPlayer.x, aPlayer.y, aPlayer.radius, aPlayer.name, aPlayer.color);
         if(key == myId) {
             player = newPlayer;
@@ -95,16 +100,19 @@ function updatePlayers(playersInfo) {
             delete players[key];
         }
     }
-
 }
 
-function updateBullets(bulletsInfo) {
-    bullets = [];
-    bulletsInfo.forEach((bullet, index) => {
-        bullets[index] = new Bullet(bullet.x, bullet.y, bullet.speedX, bullet.speedY);
-    });
+function updateBullets() {
+    // bullets = [];
+    // bulletsInfo.forEach((bullet, index) => {
+    //     bullets[index] = new Bullet(bullet.x, bullet.y, bullet.speedX, bullet.speedY);
+    // });
     // bullets = bulletsInfo;
+    bullets.forEach((bullet) => {
+        bullet.move();
+    });
 }
+
 function initGame(gameState) {
     console.log('this is the game state: ', gameState);
     initMap(gameState.map);
@@ -127,12 +135,6 @@ function update() {
             bullets.splice(index, 1);
         }
     });
-
-    // bullets.forEach((bullet, index) => {
-    //     if (bullet.isOutOfBounds(canvas)) {
-    //         bullets.splice(index, 1);
-    //     }
-    // });
 }
 
 function draw() {
@@ -157,36 +159,10 @@ function gameLoop() {
 
 const keys = {};
 
-window.addEventListener('keydown', (e) => {
-    keys[e.key] = true;
-
-    if (e.key === ' ') {
-        bullets.push({
-            x: player.x,
-            y: player.y,
-        });
-    }
-});
-
-window.addEventListener('keyup', (e) => {
-    keys[e.key] = false;
-});
-
-canvas.addEventListener('click', (e) => {
-    const angle = Math.atan2(e.clientY - canvas.offsetTop - player.y, e.clientX - canvas.offsetLeft - player.x);
-    const speedX = bulletSpeed * Math.cos(angle);
-    const speedY = bulletSpeed * Math.sin(angle);
-    let bullet = new Bullet(player.x + player.radius * Math.cos(angle), player.y + player.radius * Math.sin(angle), speedX, speedY);
-    bullets.push(bullet);
-
-    socket.emit('shoot', bullet);
-    console.log('shoot');
-});
-
 gameLoop();
 
 setInterval( () => {
-    if (initGame) {
+    if (mapInit) {
         socket.emit('playerInfo', {x: player.x, y: player.y});
     }
 }, 15);
@@ -213,7 +189,54 @@ setInterval( () => {
         updateBullets(bullets);
     });
 
+    socket.on('bulletAdded', (bullet) => {
+        addBullet(bullet);
+    })
+
     socket.on('playerDied', (playerId) => {
         playerDied(playerId);
     });
 })();
+
+
+window.addEventListener('keydown', (e) => {
+    if (initMap == false) return;
+    keys[e.key] = true;
+
+    if (e.key === ' ') {
+        bullets.push({
+            x: player.x,
+            y: player.y,
+        });
+    }
+});
+
+window.addEventListener('keyup', (e) => {
+    if (initMap == false) return;
+    keys[e.key] = false;
+});
+
+// username form
+document.querySelector('#usernameForm').addEventListener('submit', (event) => {
+    event.preventDefault()
+    document.querySelector('#usernameForm').style.display = 'none'
+    socket.emit('initGame', {
+      width: canvas.width,
+      height: canvas.height,
+      devicePixelRatio,
+      username: document.querySelector('#usernameInput').value
+    })
+  });
+
+addEventListener('click', (e) => {
+    if (mapInit == false) return;
+    const canvas = document.querySelector('canvas')
+    const angle = Math.atan2(e.clientY - canvas.offsetTop - player.y, e.clientX - canvas.offsetLeft - player.x);
+    const speedX = bulletSpeed * Math.cos(angle);
+    const speedY = bulletSpeed * Math.sin(angle);
+    // let bullet = new Bullet(player.x + player.radius * Math.cos(angle), player.y + player.radius * Math.sin(angle), speedX, speedY);
+    // bullets.push(bullet);
+
+    socket.emit('shoot', {x: player.x + player.radius * Math.cos(angle), y: player.y + player.radius * Math.sin(angle), speedX: speedX, speedY: speedY});
+    console.log('shoot');
+});
