@@ -1,4 +1,5 @@
 // server/server.js
+const hostname = '192.168.2.10';
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
@@ -15,6 +16,7 @@ const io = socketIO(server);
 
 app.use(express.static(path.join(__dirname, '../client')));
 
+var bulletCount = 0;
 
 
 // Init a map
@@ -25,7 +27,11 @@ const players = {};
 const bullets = [];
 
 
-
+function removeBullet(bulletIndex) {
+  io.emit('removeBullet', bullets[bulletIndex]);
+  bullets.splice(bulletIndex, 1);
+  console.log('a bullet has been removed');
+}
 
 // client-server functions
 io.on('connection', (socket) => {
@@ -50,19 +56,23 @@ io.on('connection', (socket) => {
   });
 
   socket.on('shoot', (bullet) => {
-    bullets.push(new Bullet(bullet.x, bullet.y, bullet.speedX, bullet.speedY));
+    bullets.push(new Bullet(bulletCount, bullet.x, bullet.y, bullet.speedX, bullet.speedY));
+    bulletCount++;
+    io.emit('bulletAdded', bullet);
   });
 
-  // make the new player
-  let nPlyr = Object.keys(players).length
-  players[socket.id] = new Player(400, 200, 15, "Chad " + nPlyr.toString());
-  console.log('color new player: ', players[socket.id].color);
+  // connect the player
+  socket.on('initGame', (frontendGameInfo) => {
+    // make the new player
+    players[socket.id] = new Player(400, 200, 15, frontendGameInfo.username);
 
-  // send the state of the game when the player joins
-  socket.emit('initGameState', {'map': map1, 'players': players});
+    // send the state of the game when the player joins
+    socket.emit('initGameState', {'map': map1, 'players': players});
 
-  // send the new user to all clients
-  io.emit('playersInfo', players);
+    // send the new user to all clients
+    io.emit('playersInfo', players);
+  });
+  
 });
 
 // emit player info
@@ -85,17 +95,17 @@ setInterval(() => {
 
     // check if the bullets are out of the map or touch a wall
     if (map1.isLegitMove(bullet.x, bullet.y, bullet.radius) == false) {
-      bullets.splice(index, 1);
-      console.log('a bullet has been remvoed');
+      removeBullet(index);
     }
   });
 
   // send player info
   io.emit('playersInfo', players);
-  io.emit('bullets', bullets);
+  // io.emit('bullets', bullets);
 }, 15);
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+const localIP = '192.168.2.10';
+server.listen(PORT, localIP, () => {
+  console.log(`Server is running on http://${localIP}:${PORT}`);
 });
