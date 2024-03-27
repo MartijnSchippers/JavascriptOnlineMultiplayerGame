@@ -104,9 +104,14 @@ setInterval(() => {
   // io.emit('bullets', bullets);
 }, 15);
 
+// const PORT = process.env.PORT || 3000;
+// // const localIP = '192.168.2.10';
+// // server.listen(PORT, localIP, () => {
+//   server.listen(PORT, () => {
+//   console.log(`Server is running on http://${localIP}:${PORT}`);
+// });
+
 const PORT = process.env.PORT || 3000;
-// const localIP = '192.168.2.10';
-// server.listen(PORT, localIP, () => {
-  server.listen(PORT, () => {
-  console.log(`Server is running on http://${localIP}:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
